@@ -1,0 +1,13 @@
+name: astro_app
+description: Tamil astrology reference app
+publish_to: none
+version: 0.1.0+1
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/
