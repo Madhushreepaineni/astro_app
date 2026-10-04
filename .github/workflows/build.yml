@@ -1,0 +1,32 @@
+name: Build APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Arrange files
+        run: |
+          mkdir -p lib assets/data
+          [ -f main.dart ] && mv main.dart lib/main.dart || true
+          for f in edhiridai pathaka sadhaga samayam; do
+            [ -f $f.json ] && mv $f.json assets/data/$f.json || true
+          done
+          ls -R lib assets
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter create . --project-name astro_app --org com.madhu --platforms=android
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: astro-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
