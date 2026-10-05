@@ -10,10 +10,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Arrange files
         run: |
-          mkdir -p lib assets/data
+          mkdir -p lib assets/data assets/icon
           [ -f main.dart ] && mv main.dart lib/main.dart || true
-          for f in edhiridai pathaka sadhaga samayam; do
-            [ -f $f.json ] && mv $f.json assets/data/$f.json || true
+          for f in *.json; do
+            [ -f "$f" ] && mv "$f" assets/data/ || true
+          done
+          for f in icon icon_fg; do
+            [ -f $f.png ] && mv $f.png assets/icon/$f.png || true
           done
           ls -R lib assets
       - uses: actions/setup-java@v4
@@ -25,6 +28,19 @@ jobs:
           channel: stable
       - run: flutter create . --project-name astro_app --org com.madhu --platforms=android
       - run: flutter pub get
+      - name: App name and icon
+        run: |
+          sed -i 's/android:label="[^"]*"/android:label="கோள்களின் கோலாட்டம்"/' android/app/src/main/AndroidManifest.xml
+          flutter pub add --dev flutter_launcher_icons
+          cat > flutter_launcher_icons.yaml <<'YAML'
+          flutter_launcher_icons:
+            android: true
+            ios: false
+            image_path: "assets/icon/icon.png"
+            adaptive_icon_background: "#1B1240"
+            adaptive_icon_foreground: "assets/icon/icon_fg.png"
+          YAML
+          dart run flutter_launcher_icons
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
